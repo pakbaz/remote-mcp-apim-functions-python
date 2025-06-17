@@ -354,6 +354,50 @@ resource oauthMetadataGetPolicy 'Microsoft.ApiManagement/service/apis/operations
   }
 }
 
+// Add a OPTIONS operation for the OAuth Protected Resource Metadata endpoint
+resource oauthProtectedResourceMetadataOptionsOperation 'Microsoft.ApiManagement/service/apis/operations@2021-08-01' = {
+  parent: oauthApi
+  name: 'oauth-protected-resource-metadata-options'
+  properties: {
+    displayName: 'OAuth Protected Resource Metadata Options'
+    method: 'OPTIONS'
+    urlTemplate: '/.well-known/oauth-protected-resource'
+    description: 'CORS preflight request handler for OAuth Protected Resource Metadata endpoint'
+  }
+}
+
+// Add policy for the OAuth Protected Resource Metadata options operation
+resource oauthProtectedResourceMetadataOptionsPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2021-08-01' = {
+  parent: oauthProtectedResourceMetadataOptionsOperation
+  name: 'policy'
+  properties: {
+    format: 'rawxml'
+    value: loadTextContent('oauth-prm-options.policy.xml')
+  }
+}
+
+// Add a GET operation for the OAuth Protected Resource Metadata endpoint
+resource oauthProtectedResourceMetadataGetOperation 'Microsoft.ApiManagement/service/apis/operations@2021-08-01' = {
+  parent: oauthApi
+  name: 'oauth-protected-resource-metadata-get'
+  properties: {
+    displayName: 'OAuth Protected Resource Metadata Get'
+    method: 'GET'
+    urlTemplate: '/.well-known/oauth-protected-resource'
+    description: 'OAuth 2.0 Protected Resource Metadata endpoint'
+  }
+}
+
+// Add policy for the OAuth Protected Resource Metadata get operation
+resource oauthProtectedResourceMetadataGetPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2021-08-01' = {
+  parent: oauthProtectedResourceMetadataGetOperation
+  name: 'policy'
+  properties: {
+    format: 'rawxml'
+    value: loadTextContent('oauth-prm-get.policy.xml')
+  }
+}
+
 // Add a GET operation for the consent endpoint
 resource oauthConsentGetOperation 'Microsoft.ApiManagement/service/apis/operations@2021-08-01' = {
   parent: oauthApi
