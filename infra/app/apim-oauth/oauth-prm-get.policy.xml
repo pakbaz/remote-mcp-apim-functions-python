@@ -17,7 +17,7 @@
             </set-header>
             <set-body>@{
                 return JsonConvert.SerializeObject(new {
-                    resource = "{{APIMGatewayURL}}",
+                    resource = "{{APIMGatewayURL}}/",
                     authorization_servers = new[] {
                         $"{{APIMGatewayURL}}"
                     },
