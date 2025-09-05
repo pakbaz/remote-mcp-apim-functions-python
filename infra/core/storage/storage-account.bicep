@@ -13,6 +13,7 @@ param networkAcls object = {
   bypass: 'AzureServices'
   defaultAction: 'Allow'
 }
+param disableSharedKeyAccess bool = false
 
 resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: name
@@ -24,7 +25,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     minimumTlsVersion: minimumTlsVersion
     allowBlobPublicAccess: allowBlobPublicAccess
     publicNetworkAccess: publicNetworkAccess
-    allowSharedKeyAccess: false
+    allowSharedKeyAccess: !disableSharedKeyAccess  // Allow shared key access during deployment, disable when secure
     networkAcls: networkAcls
   }
 

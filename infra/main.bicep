@@ -115,6 +115,9 @@ module appServicePlan './core/host/appserviceplan.bicep' = {
   }
 }
 
+var vnetName = !empty(vNetName) ? vNetName : '${abbrs.networkVirtualNetworks}${resourceToken}'
+var appSubnetResourceId = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${rg.name}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/app'
+
 module api './app/api.bicep' = {
   name: 'api'
   scope: rg
@@ -132,7 +135,7 @@ module api './app/api.bicep' = {
     identityClientId: apiUserAssignedIdentity.outputs.identityClientId
     appSettings: {
     }
-    virtualNetworkSubnetId: !vnetEnabled ? '' : serviceVirtualNetwork.outputs.appSubnetID
+    virtualNetworkSubnetId: !vnetEnabled ? '' : appSubnetResourceId
   }
 }
 
@@ -146,6 +149,7 @@ module storage './core/storage/storage-account.bicep' = {
     tags: tags
     containers: [{name: deploymentStorageContainerName}, {name: 'snippets'}]
     publicNetworkAccess: vnetEnabled ? 'Disabled' : 'Enabled'
+    disableSharedKeyAccess: false  // Keep enabled for initial deployment compatibility
     networkAcls: !vnetEnabled ? {} : {
       defaultAction: 'Deny'
     }
@@ -195,7 +199,7 @@ module storagePrivateEndpoint 'app/storage-PrivateEndpoint.bicep' = if (vnetEnab
     location: location
     tags: tags
     virtualNetworkName: !empty(vNetName) ? vNetName : '${abbrs.networkVirtualNetworks}${resourceToken}'
-    subnetName: !vnetEnabled ? '' : serviceVirtualNetwork.outputs.peSubnetName
+    subnetName: 'private-endpoints-subnet'  // Use the default subnet name from vnet.bicep
     resourceName: storage.outputs.name
   }
 }
